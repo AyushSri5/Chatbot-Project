@@ -1,5 +1,5 @@
 'use client'
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { 
   Search, 
   Filter, 
@@ -27,6 +27,7 @@ const CourseSelectionPage = () => {
   const [currentView, setCurrentView] = useState('courses'); // 'courses' or 'chat'
   const [selectedCourse, setSelectedCourse] = useState(null);
   const [selectedVideoLesson, setSelectedVideoLesson] = useState(null);
+  const [videos,setVideos] = useState([]); 
 
   // Course data
   const courses = [
@@ -136,6 +137,21 @@ const CourseSelectionPage = () => {
     { id: 10, title: "Project: Todo Application", duration: "55:30", completed: false }
   ];
 
+  useEffect(() => {
+  const fetchData = async () => {
+    try {
+      const response = await fetch("/api/list");
+      const data = await response.json();
+      console.log("Response", data);
+      setVideos(() => data.docs);
+      // optionally setVideos(data)
+    } catch (err) {
+      console.error("Error fetching list", err);
+    }
+  };
+  fetchData();
+}, []);
+
   const filteredCourses = courses.filter(course => {
     const matchesInstructor = selectedInstructor === 'all' || course.instructor.toLowerCase().includes(selectedInstructor);
     const matchesSearch = course.title.toLowerCase().includes(searchQuery.toLowerCase()) || 
@@ -190,7 +206,7 @@ const handleVideoLessonSelect = (lessonId) => {
                 Video Lessons
               </h3>
               <div className="space-y-2">
-                {videoLessons.map((lesson) => (
+                {videos.map((lesson) => (
                   <div 
                     key={lesson.id}
                     onClick={() => handleVideoLessonSelect(lesson.id)}
@@ -205,11 +221,11 @@ const handleVideoLessonSelect = (lessonId) => {
                         <h4 className={`text-sm font-medium ${
                           selectedVideoLesson === lesson.id ? 'text-green-800' : 'text-gray-800'
                         }`}>
-                          {lesson.title}
+                          {lesson.name}
                         </h4>
                         <div className="flex items-center mt-1 space-x-2">
                           <Clock className="w-3 h-3 text-gray-500" />
-                          <span className="text-xs text-gray-500">{lesson.duration}</span>
+                          {/* <span className="text-xs text-gray-500">{lesson.duration}</span> */}
                           {selectedVideoLesson === lesson.id && (
                             <div className="w-4 h-4 bg-green-500 rounded-full flex items-center justify-center">
                               <div className="w-2 h-2 bg-white rounded-full"></div>
@@ -261,7 +277,7 @@ const handleVideoLessonSelect = (lessonId) => {
                     I can help you with concepts, coding problems, and answer questions about the course content. 
                     {selectedVideoLesson && (
                       <><br/><br/>Currently selected lesson: <strong>
-                        {videoLessons.find(l => l.id === selectedVideoLesson)?.title}
+                        {videos.find(l => l.id === selectedVideoLesson)?.name}
                       </strong></>
                     )}
                     <br/><br/>What would you like to learn about?

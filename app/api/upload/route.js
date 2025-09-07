@@ -12,7 +12,7 @@ export async function POST(req) {
   const { url } = await req.json();
   await connectDB();
   // console.log("Docs ",docs);
-  const folderPath = "./app/api/genai-cohort/nodejs/Subtitles_1"; // change to your folder path
+  const folderPath = "./app/api/genai-cohort/nodejs/02 Subtitles - Auth&Sec"; // change to your folder path
 
   fs.readdir(folderPath, async (err, files) => {
     if (err) {
